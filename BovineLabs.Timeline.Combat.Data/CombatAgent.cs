@@ -3,7 +3,11 @@ using Unity.Mathematics;
 
 namespace BovineLabs.Timeline.Combat
 {
-    public struct CombatAgent : IComponentData { }
+    public struct CombatAgent : IComponentData 
+    { 
+        public ushort PhysicsLink;
+        public ushort EssenceLink;
+    }
 
     public struct CombatAgentProfile : IComponentData
     {

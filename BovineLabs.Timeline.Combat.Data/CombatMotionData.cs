@@ -17,7 +17,7 @@ namespace BovineLabs.Timeline.Combat
     }
 
     [Flags]
-    public enum CombatMotionFlags : ushort
+    public enum CombatMotionFlags : byte
     {
         None = 0,
         PreserveYVelocity = 1 << 0,

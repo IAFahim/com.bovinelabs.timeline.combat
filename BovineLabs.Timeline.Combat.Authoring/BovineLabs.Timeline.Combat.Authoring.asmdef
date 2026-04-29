@@ -17,7 +17,8 @@
     "Unity.Mathematics",
     "Unity.Timeline",
     "Unity.Burst",
-    "Unity.Collections"
+    "Unity.Collections",
+    "BovineLabs.Timeline.EntityLinks.Authoring"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

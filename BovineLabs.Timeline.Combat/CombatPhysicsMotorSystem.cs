@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
+using BovineLabs.Timeline.EntityLinks;
+using BovineLabs.Timeline.EntityLinks.Data;
 
 namespace BovineLabs.Timeline.Combat
 {
@@ -18,12 +20,41 @@ namespace BovineLabs.Timeline.Combat
             var dt = SystemAPI.Time.DeltaTime;
             if (dt <= 0f) return;
 
-            foreach (var (motionRO, velocityRW, profileRO) in
-                SystemAPI.Query<RefRO<ResolvedMotion>, RefRW<PhysicsVelocity>, RefRO<CombatAgentProfile>>())
+            var physicsLookup = SystemAPI.GetComponentLookup<PhysicsVelocity>(false);
+            var motionLookup = SystemAPI.GetComponentLookup<ResolvedMotion>(true);
+            var sources = SystemAPI.GetComponentLookup<EntityLinkSource>(true);
+            var links = SystemAPI.GetBufferLookup<EntityLink>(true);
+
+            foreach (var (agentRO, profileRO, entity) in
+                SystemAPI.Query<RefRO<CombatAgent>, RefRO<CombatAgentProfile>>().WithEntityAccess())
             {
-                var motion = motionRO.ValueRO.Motion;
+                var agent = agentRO.ValueRO;
                 var profile = profileRO.ValueRO;
-                var current = velocityRW.ValueRO;
+
+                Entity essenceEntity = entity;
+                if (agent.EssenceLink != 0)
+                {
+                    if (EntityLinkResolver.TryResolveRoot(entity, sources, out var root) &&
+                        EntityLinkResolver.TryResolveFromRoot(root, agent.EssenceLink, links, out var linked))
+                    {
+                        essenceEntity = linked;
+                    }
+                }
+
+                if (!motionLookup.TryGetComponent(essenceEntity, out var motionComp)) continue;
+                var motion = motionComp.Motion;
+
+                Entity physicsEntity = entity;
+                if (agent.PhysicsLink != 0)
+                {
+                    if (EntityLinkResolver.TryResolveRoot(entity, sources, out var root) &&
+                        EntityLinkResolver.TryResolveFromRoot(root, agent.PhysicsLink, links, out var linked))
+                    {
+                        physicsEntity = linked;
+                    }
+                }
+
+                if (!physicsLookup.TryGetComponent(physicsEntity, out var current)) continue;
 
                 var currentXZ = new float2(current.Linear.x, current.Linear.z);
 
@@ -73,7 +104,8 @@ namespace BovineLabs.Timeline.Combat
                 if (speed > maxSpeed && speed > 0f)
                     newXZ = newXZ * (maxSpeed / speed);
 
-                velocityRW.ValueRW.Linear = new float3(newXZ.x, current.Linear.y, newXZ.y);
+                current.Linear = new float3(newXZ.x, current.Linear.y, newXZ.y);
+                physicsLookup[physicsEntity] = current;
             }
         }
     }
