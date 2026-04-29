@@ -1,0 +1,21 @@
+{
+  "name": "BovineLabs.Timeline.Combat.Data",
+  "rootNamespace": "",
+  "references": [
+    "BovineLabs.Timeline.Data",
+    "BovineLabs.Timeline",
+    "Unity.Burst",
+    "Unity.Collections",
+    "Unity.Entities",
+    "Unity.Mathematics"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

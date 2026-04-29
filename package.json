@@ -1,0 +1,15 @@
+{
+  "name": "com.bovinelabs.timeline.combat",
+  "displayName": "BovineLabs Timeline Combat",
+  "version": "1.0.0",
+  "unity": "6000.0",
+  "description": "Timeline-native combat movement. Structural motion lanes, physics-authoritative motor, forced motion, source-stacked locks, spatial sensors, combat brain. Zero legacy.",
+  "dependencies": {
+    "com.bovinelabs.timeline": "1.0.0",
+    "com.bovinelabs.timeline.physics": "1.0.1",
+    "com.unity.entities": "6.5.0",
+    "com.unity.burst": "1.8.18",
+    "com.unity.physics": "1.0.0"
+  },
+  "type": "library"
+}

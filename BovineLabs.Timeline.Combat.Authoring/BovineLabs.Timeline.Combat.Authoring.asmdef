@@ -1,0 +1,33 @@
+{
+  "name": "BovineLabs.Timeline.Combat.Authoring",
+  "rootNamespace": "",
+  "references": [
+    "BovineLabs.Timeline.Combat.Data",
+    "BovineLabs.Timeline.Authoring",
+    "BovineLabs.Timeline.Data",
+    "BovineLabs.Timeline",
+    "BovineLabs.Core",
+    "BovineLabs.Core.Authoring",
+    "BovineLabs.Core.Extensions",
+    "BovineLabs.Reaction.Data",
+    "BovineLabs.Reaction.Authoring",
+    "BovineLabs.Essence.Data",
+    "Unity.Entities",
+    "Unity.Entities.Hybrid",
+    "Unity.Mathematics",
+    "Unity.Timeline",
+    "Unity.Burst",
+    "Unity.Collections"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UNITY_EDITOR"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
