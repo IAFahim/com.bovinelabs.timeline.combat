@@ -1,5 +1,4 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -16,40 +15,33 @@ namespace BovineLabs.Timeline.Combat
             var dt = SystemAPI.Time.DeltaTime;
             if (dt <= 0f) return;
 
-            var stateLookup = SystemAPI.GetComponentLookup<ForcedMotionState>();
-            var lockLookup = SystemAPI.GetComponentLookup<ResolvedCombatLock>();
-
-            foreach (var (requests, entity) in
-                SystemAPI.Query<DynamicBuffer<ForcedMotionRequest>>()
-                    .WithAll<CombatAgent>()
+            foreach (var (_, entity) in
+                SystemAPI.Query<RefRO<CombatAgent>>()
+                    .WithAll<ForcedMotionState>()
                     .WithEntityAccess())
             {
-                var hasBest = false;
+                if (!SystemAPI.HasBuffer<ForcedMotionRequest>(entity)) continue;
+
+                var requests = SystemAPI.GetBuffer<ForcedMotionRequest>(entity);
+                if (requests.Length == 0) continue;
+
                 var bestPriority = -1;
                 var bestIndex = -1;
 
                 for (int i = 0; i < requests.Length; i++)
                 {
-                    var req = requests[i];
-                    var priority = GetPriority(req.Mode);
-
-                    if (priority > bestPriority ||
-                        (priority == bestPriority && !hasBest))
+                    var priority = GetPriority(requests[i].Mode);
+                    if (priority > bestPriority)
                     {
                         bestPriority = priority;
                         bestIndex = i;
-                        hasBest = true;
                     }
                 }
 
-                if (hasBest && stateLookup.HasComponent(entity))
+                if (bestIndex >= 0)
                 {
                     var best = requests[bestIndex];
-
-                    if (!stateLookup.IsComponentEnabled(entity))
-                        stateLookup.SetComponentEnabled(entity, true);
-
-                    stateLookup[entity] = new ForcedMotionState
+                    SystemAPI.SetComponent(entity, new ForcedMotionState
                     {
                         Mode = best.Mode,
                         Apply = best.Apply,
@@ -59,15 +51,16 @@ namespace BovineLabs.Timeline.Combat
                         Damping = best.Damping,
                         RemainingTime = best.Duration,
                         Flags = best.Flags,
-                    };
+                    });
+
+                    if (!SystemAPI.IsComponentEnabled<ForcedMotionState>(entity))
+                        SystemAPI.SetComponentEnabled<ForcedMotionState>(entity, true);
                 }
 
                 requests.Clear();
             }
 
-            foreach (var (forcedState, entity) in
-                SystemAPI.Query<RefRW<ForcedMotionState>>()
-                    .WithEntityAccess())
+            foreach (var forcedState in SystemAPI.Query<RefRW<ForcedMotionState>>())
             {
                 if (!forcedState.ValueRW.IsActive) continue;
 
@@ -80,9 +73,6 @@ namespace BovineLabs.Timeline.Combat
                     fs.Mode = default;
                     fs.Vector = float3.zero;
                     forcedState.ValueRW = fs;
-
-                    if (stateLookup.HasComponent(entity))
-                        stateLookup.SetComponentEnabled(entity, false);
                 }
                 else
                 {

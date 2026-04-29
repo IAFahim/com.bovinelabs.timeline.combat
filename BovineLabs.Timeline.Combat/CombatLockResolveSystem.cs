@@ -13,20 +13,24 @@ namespace BovineLabs.Timeline.Combat
             var dt = SystemAPI.Time.DeltaTime;
             if (dt <= 0f) return;
 
-            foreach (var (requests, resolved) in
-                SystemAPI.Query<DynamicBuffer<CombatLockRequest>, RefRW<ResolvedCombatLock>>())
+            foreach (var (resolved, entity) in
+                SystemAPI.Query<RefRW<ResolvedCombatLock>>()
+                    .WithAll<CombatAgent>()
+                    .WithEntityAccess())
             {
+                if (!SystemAPI.HasBuffer<CombatLockRequest>(entity)) continue;
+
+                var requests = SystemAPI.GetBuffer<CombatLockRequest>(entity);
+
                 for (int i = requests.Length - 1; i >= 0; i--)
                 {
                     var req = requests[i];
                     req.RemainingTime -= dt;
-
                     if (req.RemainingTime <= 0f)
                     {
                         requests.RemoveAt(i);
                         continue;
                     }
-
                     requests[i] = req;
                 }
 
